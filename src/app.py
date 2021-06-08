@@ -1,18 +1,24 @@
+import sys
 from db.pg import DB
+from queue.broker import Producer
 
 if __name__ == "__main__":
 
+    sys.path.append("utils")
     db = DB()
-    db.getConn().insert(
-        "health_checker",
-        {
-            "http_response_time": 10,
-            "status_code": 200,
-            "page_content_exists": True
-        }
-    )
+    producer = Producer()
 
-    db.getConn().commit()
+    # db.getConn().insert(
+    #     "health_checker",
+    #     {
+    #         "http_response_time": 10,
+    #         "status_code": 200,
+    #         "page_content_exists": True
+    #     }
+    # )
+
+    # db.getConn().commit()
     print("Hello World")
+    print(producer.getSelf())
 
 print("Ole")
