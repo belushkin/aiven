@@ -1,10 +1,8 @@
-import sys
 from db.pg import DB
 from queue.broker import Producer
 
 if __name__ == "__main__":
 
-    sys.path.append("utils")
     db = DB()
     producer = Producer()
 
@@ -19,6 +17,7 @@ if __name__ == "__main__":
 
     # db.getConn().commit()
     print("Hello World")
+    print(db.getConn())
     print(producer.getSelf())
 
 print("Ole")
