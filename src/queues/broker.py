@@ -9,6 +9,7 @@ class Producer():
 
     def __init__(self):
         BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+
         self.producer = KafkaProducer(
             bootstrap_servers=os.environ['KAFKA_SERVER'],
             security_protocol="SSL",

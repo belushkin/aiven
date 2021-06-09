@@ -2,3 +2,4 @@ psycopg2==2.8.4
 pg-simple==0.2.4
 requests==2.23.0
 kafka-python==2.0.2
+schedule==1.1.0
