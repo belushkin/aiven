@@ -1,9 +1,7 @@
 import os
-import sys
 from json import dumps
 from kafka import KafkaProducer
 from utils.decorators import singleton
-# from app import BASE_DIR
 
 
 @singleton

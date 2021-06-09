@@ -1,5 +1,7 @@
 from db.pg import DB
-from queue.broker import Producer
+from queues.broker import Producer
+from utils.checker import perform_measure
+
 
 if __name__ == "__main__":
 
@@ -19,5 +21,6 @@ if __name__ == "__main__":
     print("Hello World")
     print(db.getConn())
     print(producer.getSelf())
+    print(perform_measure("https://pypi.org/project/schedule/"))
 
 print("Ole")
