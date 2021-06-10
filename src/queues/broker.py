@@ -1,13 +1,12 @@
 import os
 from json import dumps
 from kafka import KafkaProducer, KafkaConsumer
-from utils.decorators import singleton
+from utils.singleton import Singleton
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-@singleton
-class Producer():
+class QueueProducer(metaclass=Singleton):
 
     def __init__(self):
         self.producer = KafkaProducer(
@@ -24,8 +23,7 @@ class Producer():
         return self.producer
 
 
-@singleton
-class Consumer():
+class QueueConsumer(metaclass=Singleton):
 
     def __init__(self):
         self.consumer = KafkaConsumer(
