@@ -20,7 +20,7 @@ class Producer():
             key_serializer=lambda v: dumps(v).encode('ascii')
         )
 
-    def getSelf(self):
+    def getInstance(self):
         return self.producer
 
 
@@ -29,16 +29,16 @@ class Consumer():
 
     def __init__(self):
         self.consumer = KafkaConsumer(
-            'health_checker_topic',
-            auto_offset_reset='earliest',
+            os.environ['KAFKA_TOPIC'],
+            auto_offset_reset=os.environ['KAFKA_OFFSET'],
             bootstrap_servers=os.environ['KAFKA_SERVER'],
-            client_id='health-client-1',
-            group_id='health-group',
+            client_id=os.environ['KAFKA_CLIENT_ID'],
+            group_id=os.environ['KAFKA_GROUP_ID'],
             security_protocol='SSL',
             ssl_cafile=f"{BASE_DIR}/certs/ca.pem",
             ssl_certfile=f"{BASE_DIR}/certs/service.cert",
             ssl_keyfile=f"{BASE_DIR}/certs/service.key"
         )
 
-    def getSelf(self):
+    def getInstance(self):
         return self.consumer

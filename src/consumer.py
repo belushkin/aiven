@@ -1,3 +1,4 @@
+import os
 import time
 import schedule
 import json
@@ -11,7 +12,7 @@ consumer = Consumer()
 
 def action(gist):
     db.getConn().insert(
-        'health_checker',
+        os.environ['DB_TABLE_NAME'],
         {
             "http_response_time": gist['time'],
             "status_code": gist['code'],
@@ -24,20 +25,22 @@ def action(gist):
 def job() -> bool:
     print("Consuming...")
     for _ in range(2):
-        raw_msgs = consumer.getSelf().poll(timeout_ms=1000)
+        raw_msgs = consumer.getInstance().poll(timeout_ms=1000)
         for tp, msgs in raw_msgs.items():
             for msg in msgs:
                 print("Received: {}".format(msg.value))
                 try:
                     action(json.loads(msg.value.decode('utf-8')))
-                    consumer.getSelf().commit()
+                    consumer.getInstance().commit()
                     return True
                 except ValueError:
                     return False
 
 
 if __name__ == "__main__":
-    schedule.every(5).seconds.do(job)
+    schedule.every(
+        int(os.environ['SCHEDULE_CONSUMER_POLL_PERIOD_IN_SECONDS'])
+    ).seconds.do(job)
 
     while True:
         schedule.run_pending()

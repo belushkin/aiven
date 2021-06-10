@@ -1,3 +1,4 @@
+import os
 import time
 import schedule
 
@@ -10,17 +11,23 @@ producer = Producer()
 def job():
     print("Producing...")
 
-    m = perform_measure("https://pypi.org/project/urllib3/")
-    producer.getSelf().send(
-        'health_checker_topic',
+    measure = perform_measure(os.environ['HEALTH_URL'])
+    producer.getInstance().send(
+        os.environ['KAFKA_TOPIC'],
         key={'key': 1},
-        value={'time': m.time, 'code': m.code, 'exists': m.exists}
+        value={
+            'time': measure.time,
+            'code': measure.code,
+            'exists': measure.exists
+        }
     )
-    producer.getSelf().flush()
+    producer.getInstance().flush()
 
 
 if __name__ == "__main__":
-    schedule.every(10).seconds.do(job)
+    schedule.every(
+        int(os.environ['SCHEDULE_PRODUCER_CHECK_PERIOD_IN_SECONDS'])
+    ).seconds.do(job)
     while True:
         schedule.run_pending()
         time.sleep(1)
