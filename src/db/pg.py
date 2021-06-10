@@ -14,5 +14,5 @@ class DB(metaclass=Singleton):
         )
         self.db = pg_simple.PgSimple(connection_pool)
 
-    def getConn(self):
-        return self.db
+    # def getConn(self):
+    #     return self.db

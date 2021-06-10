@@ -1,11 +1,11 @@
 from unittest.mock import Mock
 from consumer import Consumer
+from collections import namedtuple
 
 
 def test_consumer_insert_when_it_receives_empty_dict():
     # given
-    db = Mock()
-    consumer = Consumer(db)
+    consumer = Consumer(Mock(), Mock())
 
     # when
     result = consumer.insert({})
@@ -14,10 +14,9 @@ def test_consumer_insert_when_it_receives_empty_dict():
     assert result is False
 
 
-def test_consumer_insert_when_it_receives_dict_without_time():
+def test_consumer_insert_when_it_receives_dict_without_time_property():
     # given
-    db = Mock()
-    consumer = Consumer(db)
+    consumer = Consumer(Mock(), Mock())
 
     # when
     result = consumer.insert({'code': 200, 'exists': True})
@@ -26,10 +25,9 @@ def test_consumer_insert_when_it_receives_dict_without_time():
     assert result is False
 
 
-def test_consumer_insert_when_it_receives_dict_without_code():
+def test_consumer_insert_when_it_receives_dict_without_code_property():
     # given
-    db = Mock()
-    consumer = Consumer(db)
+    consumer = Consumer(Mock(), Mock())
 
     # when
     result = consumer.insert({'time': 0.1, 'exists': True})
@@ -38,10 +36,9 @@ def test_consumer_insert_when_it_receives_dict_without_code():
     assert result is False
 
 
-def test_consumer_insert_when_it_receives_dict_without_exists():
+def test_consumer_insert_when_it_receives_dict_without_exists_property():
     # given
-    db = Mock()
-    consumer = Consumer(db)
+    consumer = Consumer(Mock(), Mock())
 
     # when
     result = consumer.insert({'time': 0.1, 'code': 200})
@@ -52,8 +49,7 @@ def test_consumer_insert_when_it_receives_dict_without_exists():
 
 def test_consumer_insert_when_it_receives_not_dict():
     # given
-    db = Mock()
-    consumer = Consumer(db)
+    consumer = Consumer(Mock(), Mock())
 
     # when
     result = consumer.insert(False)
@@ -65,15 +61,39 @@ def test_consumer_insert_when_it_receives_not_dict():
 def test_consumer_insert_when_it_receives_correct_dict():
     # given
     db = Mock()
-    pg = Mock()
-    db.getConn.return_value = pg
-    consumer = Consumer(db)
+    consumer = Consumer(db, Mock())
 
     # when
     result = consumer.insert({'time': 0.1, 'code': 200, 'exists': True})
 
     # then
     assert result is True
-    assert db.getConn.call_count == 2
-    pg.commit.assert_called_once()
-    pg.insert.assert_called_once()
+    db.commit.assert_called_once()
+    db.insert.assert_called_once()
+
+
+def test_consumer_periodic_job_with_correct_message():
+    # given
+    db = Mock()
+    queue = Mock()
+    msgs = Mock()
+    msg = Mock()
+
+    queue.poll.return_value = msgs
+
+    msg = namedtuple("msg", "value")
+    message_json = '{"time": 0.1, "code": 200, "exists": true}'\
+        .encode('utf-8')
+
+    msgs.items.return_value = [(0, [msg(value=message_json)])]
+
+    consumer = Consumer(db, queue)
+
+    # when
+    result = consumer.job()
+
+    # then
+    assert result is True
+    db.insert.assert_called_once()
+    db.commit.assert_called_once()
+    queue.commit.assert_called_once()

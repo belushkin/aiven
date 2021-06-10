@@ -38,5 +38,5 @@ class QueueConsumer(metaclass=Singleton):
             ssl_keyfile=f"{BASE_DIR}/certs/service.key"
         )
 
-    def getInstance(self):
-        return self.consumer
+    # def getInstance(self):
+    #     return self.consumer

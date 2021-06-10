@@ -4,15 +4,14 @@ import schedule
 import json
 
 from db.pg import DB
-# from queues.broker import QueueConsumer
-
-# consumer = Consumer()
+from queues.broker import QueueConsumer
 
 
 class Consumer():
 
-    def __init__(self, db):
+    def __init__(self, db, queue):
         self.db = db
+        self.queue = queue
 
     def insert(self, gist) -> bool:
         """Inserts received gist from the message consumed from the Kafka topic
@@ -48,8 +47,7 @@ class Consumer():
         if 'exists' not in gist:
             return False
 
-        print("v sachko")
-        self.db.getConn().insert(
+        self.db.insert(
             os.environ['DB_TABLE_NAME'],
             {
                 "http_response_time": gist['time'],
@@ -57,27 +55,26 @@ class Consumer():
                 "page_content_exists": gist['exists']
             }
         )
-        self.db.getConn().commit()
+        self.db.commit()
         return True
 
-
-# def job() -> bool:
-#     print("Consuming...")
-#     for _ in range(2):
-#         raw_msgs = consumer.getInstance().poll(timeout_ms=1000)
-#         for tp, msgs in raw_msgs.items():
-#             for msg in msgs:
-#                 print("Received: {}".format(msg.value))
-#                 try:
-#                     insert(json.loads(msg.value.decode('utf-8')))
-#                     consumer.getInstance().commit()
-#                     return True
-#                 except ValueError:
-#                     return False
+    def job(self) -> bool:
+        print("Consuming...")
+        for _ in range(2):
+            raw_msgs = self.queue.poll(timeout_ms=1000)
+            for tp, msgs in raw_msgs.items():
+                for msg in msgs:
+                    print("Received: {}".format(msg.value))
+                    try:
+                        self.insert(json.loads(msg.value.decode('utf-8')))
+                        self.queue.commit()
+                        return True
+                    except ValueError:
+                        return False
 
 
 if __name__ == "__main__":
-    consumer = Consumer(DB())
+    consumer = Consumer(DB().db, QueueConsumer().consumer)
     print("aaa")
 #     schedule.every(
 #         int(os.environ['SCHEDULE_CONSUMER_POLL_PERIOD_IN_SECONDS'])
