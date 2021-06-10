@@ -1,19 +1,24 @@
 import time
 import schedule
 
-# from db.pg import DB
-# from queues.broker import Producer
-from utils.checker import perform_measure
+from db.pg import DB
+from queues.broker import Consumer
+
+db = DB()
+consumer = Consumer()
 
 
 def job():
-    print(perform_measure("https://pypi.org/project/schedule/"))
+    print("Consuming...")
+    for _ in range(2):
+        raw_msgs = consumer.getSelf().poll(timeout_ms=1000)
+        for tp, msgs in raw_msgs.items():
+            for msg in msgs:
+                print("Received: {}".format(msg.value))
+    consumer.getSelf().commit()
 
 
 if __name__ == "__main__":
-
-    # db = DB()
-    # producer = Producer()
 
     # db.getConn().insert(
     #     "health_checker",
@@ -28,10 +33,8 @@ if __name__ == "__main__":
     # print("Hello World")
     # print(db.getConn())
     # print(producer.getSelf())
-    schedule.every(10).seconds.do(job)
+    schedule.every(5).seconds.do(job)
 
     while True:
         schedule.run_pending()
         time.sleep(1)
-
-# print("Ole")
