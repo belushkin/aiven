@@ -77,7 +77,6 @@ def test_consumer_periodic_job_with_correct_message():
     db = Mock()
     queue = Mock()
     msgs = Mock()
-    msg = Mock()
 
     queue.poll.return_value = msgs
 
@@ -97,3 +96,29 @@ def test_consumer_periodic_job_with_correct_message():
     db.insert.assert_called_once()
     db.commit.assert_called_once()
     queue.commit.assert_called_once()
+
+
+def test_consumer_periodic_job_with_incorrect_message():
+    # given
+    db = Mock()
+    queue = Mock()
+    msgs = Mock()
+
+    queue.poll.return_value = msgs
+
+    msg = namedtuple("msg", "value")
+    message_json = '{"tim---sue}'\
+        .encode('utf-8')
+
+    msgs.items.return_value = [(0, [msg(value=message_json)])]
+
+    consumer = Consumer(db, queue)
+
+    # when
+    result = consumer.job()
+
+    # then
+    assert result is False
+    assert not db.insert.called
+    assert not db.commit.called
+    assert not queue.commit.called
