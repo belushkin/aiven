@@ -75,11 +75,11 @@ class Consumer():
 
 if __name__ == "__main__":
     consumer = Consumer(DB().db, QueueConsumer().consumer)
-    print("aaa")
-#     schedule.every(
-#         int(os.environ['SCHEDULE_CONSUMER_POLL_PERIOD_IN_SECONDS'])
-#     ).seconds.do(job)
 
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)
+    schedule.every(
+        int(os.environ['SCHEDULE_CONSUMER_POLL_PERIOD_IN_SECONDS'])
+    ).seconds.do(consumer.job)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
