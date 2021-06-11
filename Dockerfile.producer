@@ -2,5 +2,4 @@ FROM aiven
 
 WORKDIR $APP_HOME/src
 
-CMD [ "python", "-m", "pytest"]
-# CMD [ "python", "./src/producer.py" ]
+CMD [ "../producer.sh"]
