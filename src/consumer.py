@@ -36,7 +36,7 @@ class Consumer():
         Returns
         -------
         bool
-            The result of the action
+            The result of the insertion
         """
         if type(gist) is not dict:
             return False
@@ -59,6 +59,20 @@ class Consumer():
         return True
 
     def job(self) -> bool:
+        """Connects to the Kafka topic and poll the messages,
+        then insert messages to the db
+
+        If the json of the message is wrong, do nothing and
+        do not commit offset to the topic
+
+        If insertion to the db does not work, do nothing and
+        do not commit offset to the topic
+
+        Returns
+        -------
+        bool
+            The result of the poll job
+        """
         print("Consuming...")
         for _ in range(2):
             raw_msgs = self.queue.poll(timeout_ms=1000)

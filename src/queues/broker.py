@@ -7,6 +7,13 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class QueueProducer(metaclass=Singleton):
+    """Kafka producer singleton incapsulates Kafka connection
+
+    Returns
+    -------
+    KafkaProducer
+        Object wich is connected to kafka topic and can produce messages
+    """
 
     def __init__(self):
         self.producer = KafkaProducer(
@@ -19,11 +26,15 @@ class QueueProducer(metaclass=Singleton):
             key_serializer=lambda v: dumps(v).encode('ascii')
         )
 
-    def getInstance(self):
-        return self.producer
-
 
 class QueueConsumer(metaclass=Singleton):
+    """Kafka consumer singleton incapsulates Kafka connection
+
+    Returns
+    -------
+    KafkaConsumer
+        Object wich is connected to kafka topic and can consume messages
+    """
 
     def __init__(self):
         self.consumer = KafkaConsumer(
@@ -37,6 +48,3 @@ class QueueConsumer(metaclass=Singleton):
             ssl_certfile=f"{BASE_DIR}/certs/service.cert",
             ssl_keyfile=f"{BASE_DIR}/certs/service.key"
         )
-
-    # def getInstance(self):
-    #     return self.consumer
